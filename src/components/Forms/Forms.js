@@ -1,7 +1,9 @@
 import {
   createUserWithEmailAndPassword,
   getAuth,
-  signInWithEmailAndPassword,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword
 } from "firebase/auth";
 import React, { useState } from "react";
 import { Button, Form } from "react-bootstrap";
@@ -12,6 +14,8 @@ const Forms = () => {
   const [registered, setRegistered] = useState(false);
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [resetsuccess, setResetSuccess] = useState("");
+  const [confermation, setConfermation] = useState("");
   const [password, setPassword] = useState("");
   const [validated, setValidated] = useState(false);
   const handleFormSubmit = (e) => {
@@ -26,7 +30,7 @@ const Forms = () => {
       setError("password should be atleast one character");
       return;
     }
-    setError("User Created");
+    setConfermation("Welcome");
 
     setValidated(true);
 
@@ -50,6 +54,7 @@ const Forms = () => {
           console.log(user);
           setPassword("");
           setEmail("");
+          veryfyEmail();
           // setEmail(user)
         })
         .catch((error) => {
@@ -68,6 +73,22 @@ const Forms = () => {
 
   const handleOneChangeRegistered = (e) => {
     setRegistered(e.target.checked);
+  };
+
+  const veryfyEmail = (e) => {
+    sendEmailVerification(auth.currentUser).then(() => {
+      console.log("email veryfication sent");
+    });
+  };
+
+  const handlePasswordReset = (e) => {
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        setResetSuccess("An Email has been sent to reset your password");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
   return (
     <div className="registration w-50 mx-auto mt-5">
@@ -111,6 +132,12 @@ const Forms = () => {
           />
         </Form.Group>
         <p className="text-danger">{error}</p>
+        <p className="text-success">{confermation}</p>
+        <p className="text-success">{resetsuccess}</p>
+        <Button onClick={handlePasswordReset} variant="link">
+          Forget Password?
+        </Button>
+        <br />
         <Button variant="primary" type="submit">
           {registered ? "Login" : "Register"}
         </Button>
