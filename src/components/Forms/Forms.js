@@ -3,7 +3,8 @@ import {
   getAuth,
   sendEmailVerification,
   sendPasswordResetEmail,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  updateProfile
 } from "firebase/auth";
 import React, { useState } from "react";
 import { Button, Form } from "react-bootstrap";
@@ -13,6 +14,7 @@ const auth = getAuth(app);
 const Forms = () => {
   const [registered, setRegistered] = useState(false);
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [resetsuccess, setResetSuccess] = useState("");
   const [confermation, setConfermation] = useState("");
@@ -55,6 +57,7 @@ const Forms = () => {
           setPassword("");
           setEmail("");
           veryfyEmail();
+          setUsername();
           // setEmail(user)
         })
         .catch((error) => {
@@ -64,6 +67,20 @@ const Forms = () => {
 
     e.preventDefault();
   };
+
+
+  const setUsername = () => {
+    updateProfile(auth.currentUser, {displayName: name})
+    .then(() => {
+      setConfermation("User data recorded!")
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+  }
+  const handleNameBlur = (e) => {
+    setName(e.target.value);
+  }
   const handleEmailBlur = (e) => {
     setEmail(e.target.value);
   };
@@ -96,6 +113,19 @@ const Forms = () => {
         Please {registered ? "Login" : "Register"}!!
       </h1>
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
+        {!registered && <Form.Group className="mb-3" controlId="formBasicName">
+          <Form.Label>Name</Form.Label>
+          <Form.Control
+            onBlur={handleNameBlur}
+            type="text"
+            placeholder="Your name"
+            required
+          />
+          
+          <Form.Control.Feedback type="invalid">
+            Please provide your name.
+          </Form.Control.Feedback>
+        </Form.Group>}
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Email address</Form.Label>
           <Form.Control
